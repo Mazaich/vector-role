@@ -1,0 +1,10 @@
+[sources.in]
+type = "file"
+include = ["/var/log/*.log"]
+
+[sinks.out]
+type = "clickhouse"
+inputs = ["in"]
+endpoint = "{{ clickhouse_endpoint }}"
+database = "logs"
+table = "log_table"

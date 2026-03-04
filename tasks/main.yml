@@ -1,0 +1,32 @@
+#SPDX-License-Identifier: MIT-0
+# tasks file for vector-role
+---
+- name: Download Vector rpm
+  ansible.builtin.get_url:
+    url: "https://packages.timber.io/vector/{{ vector_version }}/vector-{{ vector_version }}-1.x86_64.rpm"
+    dest: "/tmp/vector-{{ vector_version }}.rpm"
+  register: download_vector
+
+- name: Install Vector
+  ansible.builtin.yum:
+    name: "/tmp/vector-{{ vector_version }}.rpm"
+    state: present
+  notify: restart vector
+
+- name: Ensure configuration directory exists
+  ansible.builtin.file:
+    path: /etc/vector
+    state: directory
+    mode: '0755'
+
+- name: Deploy Vector configuration
+  ansible.builtin.template:
+    src: vector.toml.j2
+    dest: /etc/vector/vector.toml
+  notify: restart vector
+
+- name: Start and enable vector service
+  ansible.builtin.service:
+    name: vector
+    state: started
+    enabled: true
