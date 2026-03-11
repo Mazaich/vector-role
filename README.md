@@ -33,8 +33,8 @@
   - Ubuntu 20.04/22.04 (latest)
 
 ## Пример плейбука
-
-```yaml
+ 
+  yaml
 - name: Установка Vector
   hosts: all
   roles:
@@ -51,19 +51,20 @@
 ### Сценарий по умолчанию (Docker)
 Тестирует роль на Oracle Linux 8 и Ubuntu latest с использованием драйвера Docker.
 
-```bash
+bash
 molecule test -s default
 
 ### Сценарий Podman (облегчённый)
 Тестирует роль на Ubuntu с использованием драйвера Podman (быстрее, одна платформа).
 
-```bash
+bash
 molecule test -s podman
 
 ## Запуск тестов с помощью Tox
 Tox автоматизирует запуск Molecule-тестов в разных окружениях Python и Ansible. Это гарантирует совместимость роли с различными версиями.
 
-```bash
+bash
+
 tox
 
 Тестируются следующие комбинации:
