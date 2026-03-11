@@ -1,5 +1,7 @@
 ---
 galaxy_info:
+  role_name: vector
+  namespace: mazaich
   author: Roman Mashaev
   description: Ansible role for Vector
   company: Home, sweet home

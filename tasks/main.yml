@@ -1,32 +1,40 @@
-#SPDX-License-Identifier: MIT-0
-# tasks file for vector-role
 ---
-- name: Download Vector rpm
-  ansible.builtin.get_url:
-    url: "https://packages.timber.io/vector/{{ vector_version }}/vector-{{ vector_version }}-1.x86_64.rpm"
-    dest: "/tmp/vector-{{ vector_version }}.rpm"
-  register: download_vector
+- name: Install tar on Oracle Linux (raw)
+  raw: dnf install -y tar
+  args:
+    executable: /bin/bash
+  changed_when: false
+  when: ansible_os_family == "RedHat"
 
-- name: Install Vector
-  ansible.builtin.yum:
-    name: "/tmp/vector-{{ vector_version }}.rpm"
+- name: Ensure tar is installed (Debian family)
+  package:
+    name: tar
     state: present
-  notify: restart vector
+  when: ansible_os_family == "Debian"
 
-- name: Ensure configuration directory exists
-  ansible.builtin.file:
-    path: /etc/vector
+- name: Create Vector installation directory
+  file:
+    path: "{{ vector_install_dir | default('/opt/vector') }}"
     state: directory
     mode: '0755'
 
-- name: Deploy Vector configuration
-  ansible.builtin.template:
-    src: vector.toml.j2
-    dest: /etc/vector/vector.toml
-  notify: restart vector
+- name: Download Vector archive
+  get_url:
+    url: "https://packages.timber.io/vector/{{ vector_version }}/vector-{{ vector_version }}-x86_64-unknown-linux-gnu.tar.gz"
+    dest: "/tmp/vector-{{ vector_version }}.tar.gz"
+    mode: '0644'
+  register: download_vector
 
-- name: Start and enable vector service
-  ansible.builtin.service:
-    name: vector
-    state: started
-    enabled: true
+- name: Extract Vector archive
+  unarchive:
+    src: "/tmp/vector-{{ vector_version }}.tar.gz"
+    dest: "{{ vector_install_dir | default('/opt/vector') }}"
+    remote_src: yes
+    extra_opts: [--strip-components=2]
+    creates: "{{ vector_install_dir | default('/opt/vector') }}/bin/vector"
+
+- name: Create symbolic link to vector binary
+  file:
+    src: "{{ vector_install_dir | default('/opt/vector') }}/bin/vector"
+    dest: "/usr/local/bin/vector"
+    state: link
