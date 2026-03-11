@@ -1,0 +1,21 @@
+---
+driver:
+  name: podman
+platforms:
+  - name: ubuntu-podman
+    image: ubuntu:latest
+    pre_build_image: true
+provisioner:
+  name: ansible
+  env:
+    ANSIBLE_ROLES_PATH: ../../
+  inventory:
+    group_vars:
+      all:
+        vector_version: "0.34.0"
+        vector_install_dir: "/opt/vector"
+verifier:
+  name: ansible
+lint: |
+  set -e
+  ansible-lint

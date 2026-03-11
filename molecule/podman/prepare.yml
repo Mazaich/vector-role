@@ -1,0 +1,31 @@
+---
+- name: Prepare - install Python for Ansible
+  hosts: all
+  gather_facts: false
+  tasks:
+    - name: Install Python on Ubuntu
+      raw: apt-get update && apt-get install -y python3 python3-apt
+      args:
+        executable: /bin/bash
+      changed_when: false
+      when: inventory_hostname == 'ubuntu-latest'
+
+    - name: Install Python 3.8 on Oracle Linux 8
+      raw: |
+        dnf module enable -y python38
+        dnf install -y python38 python38-pip
+      args:
+        executable: /bin/bash
+      changed_when: false
+      when: inventory_hostname == 'oraclelinux-8'
+
+    - name: Install python3-dnf on Oracle Linux 8 (for Ansible dnf module)
+      raw: dnf install -y python3-dnf
+      args:
+        executable: /bin/bash
+      changed_when: false
+      when: inventory_hostname == 'oraclelinux-8'
+
+    - name: Create symlink python -> python3 (if needed)
+      raw: ln -sf /usr/bin/python3 /usr/bin/python
+      changed_when: false
